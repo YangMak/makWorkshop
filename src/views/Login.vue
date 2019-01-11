@@ -20,7 +20,7 @@
             </a>
         </div> 
           <br />        
-          <p>You don't have an account ? You can <router-link to="/signUp">create one</router-link></p>
+          <p class="note">You don't have an account ? You can <router-link to="/signUp">create one</router-link></p>
       </div>
     </div> 
 
@@ -160,9 +160,17 @@ input {
 .social-icon {
   color: rgba(255, 255, 255, 0.8);
   width: 100%;
-  max-width: 220px;
+  max-width: 250px;
   display: inline-block;
   margin: 2rem 0 1rem;
+}
+
+.social-icon i {
+    line-height: 40px !important;
+}
+
+.note {
+    font-size: .85rem;
 }
 
 @media screen and (max-width: 576px){
@@ -171,4 +179,3 @@ input {
   }
 }
 </style>
-
