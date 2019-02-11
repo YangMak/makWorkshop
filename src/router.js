@@ -2,7 +2,7 @@ import Vue from 'vue';
 import Router from 'vue-router';
 import Home from './views/Home.vue';
 import Login from './views/Login.vue';
-import SignUp from './views/SignUp.vue';
+import SignUpMak from './views/SignUpMak.vue';
 
 Vue.use(Router)
 
@@ -23,9 +23,9 @@ export default new Router({
             component: Login
         },
         {
-            path: '/signUp',
-            name: 'SignUp',
-            component: SignUp
+            path: '/signUpMak',
+            name: 'SignUpMak',
+            component: SignUpMak
         },
         {
             path: '/channel',
@@ -34,7 +34,16 @@ export default new Router({
             // this generates a separate chunk (about.[hash].js) for this route
             // which is lazy-loaded when the route is visited.
             component: () =>
-                import ('./views/Channel.vue')
+                import ( /* webpackChunkName: "channel" */ './views/Channel.vue')
         },
+        {
+            path: '/message',
+            name: 'Message',
+            // route level code-splitting
+            // this generates a separate chunk (about.[hash].js) for this route
+            // which is lazy-loaded when the route is visited.
+            component: () =>
+                import ( /* webpackChunkName: "message" */ './views/Message.vue')
+        }
     ]
 })

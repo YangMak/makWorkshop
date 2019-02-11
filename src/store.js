@@ -5,13 +5,21 @@ Vue.use(Vuex)
 
 export default new Vuex.Store({
     state: {
-        mainAccount: '',
-        mainUid: ''
+        channelData: {
+            userId: '',
+            channelName: '',
+            post: ''
+        },
+        isOpenPostList: false
     },
     mutations: {
-        UserLogin(state, user) {
-            state.mainAccount = user.email;
-            state.mainUid = user.uid;
+        channelData(state, data) {
+            state.channelData.userId = data.userId;
+            state.channelData.channelName = data.channelName;
+            state.channelData.post = data.postData;
+        },
+        postListStatus(state, data) {
+            state.isOpenPostList = data.status;
         }
     },
     actions: {

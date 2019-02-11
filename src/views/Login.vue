@@ -20,23 +20,9 @@
             </a>
         </div> 
           <br />        
-          <p class="note">You don't have an account ? You can <router-link to="/signUp">create one</router-link></p>
+          <!-- <p class="note">You don't have an account ? You can <router-link to="/signUpMak">create one</router-link></p> -->
       </div>
     </div> 
-
-    <!-- <div class="login">
-        <h3>Sign In</h3>
-        <input type="text" v-model="email" placeholder="Email"><br>
-        <input type="password" v-model="password" placeholder="Password"><br>
-        <button class="btn btn-primary" @click="login">Connection</button>
-        <p>or</p>
-        <div class="social-icon col-sm-2">
-            <a @click="socialLogin" class="btn btn-lg btn-block btn-social btn-google">
-                <i class="fab fa-google"></i>Sign in with Google
-            </a>
-        </div>
-        <p>You don't have an account ? You can <router-link to="/signUp">create one</router-link></p>
-    </div>   -->
   </div>    
 </template>
 
@@ -61,7 +47,7 @@ export default {
                     uid: data.user.uid 
                 });
                 console.log(data);
-                this.$router.push({ name: 'Channel', params: { userId: data.user.uid}})
+                this.$router.push({ path: '/channel', query: { user: data.user.email }, params: { userId: data.user.uid }})
             }).catch((err) => {
                 alert('Oops. ' + err.message);    
             });
@@ -77,10 +63,6 @@ export default {
                 }else{
                     console.log('Old User');
                 }
-                this.$store.commit('UserLogin', {
-                    email: data.user.email,
-                    uid: data.user.uid 
-                });
                 console.log(data);
                 this.$router.push({ name: 'Channel', params: { userId: data.user.uid}})
             }).catch((err) => {

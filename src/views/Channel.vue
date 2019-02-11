@@ -11,10 +11,11 @@
       <div class="collapse navbar-collapse" id="navbarTogglerDemo02">
         <ul class="navbar-nav mr-auto mt-2 mt-lg-0"></ul>        
         <form class="form-inline my-2 my-lg-0">
-          <input class="form-control mr-sm-2" type="search" placeholder="Search">
-          <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+          <input v-model="searchInput" class="form-control mr-sm-2" type="search" placeholder="Search">
+          <button @click="searchData" class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
         </form>
       </div>
+      <button @click="siginOut" class="btn btn-outline-success my-2 my-sm-0 signOutButton">Sign Out</button>
   </nav>
 
     <div class="containerInner container-fluid">
@@ -28,14 +29,14 @@
           </div>
         </li>        
         <!-- order channel item -->
-        <li class="listChannel-item col-sm-2">
-          <a href="">
+        <li v-for="channel in searchDataList" :key="channel.name" class="listChannel-item col-sm-2">
+          <router-link :to="{ name: 'Message', params: { name: channel.name, token: channel.accToken, imgUrl: channel.imgUrl }, query: {name: channel.name}}">
             <div class="listChannel-itemHeader">
               <div class="listChannel-itemImg">
-                <img src="https://i.imgur.com/2sMHm0x.jpg" alt="channelImg">  
+                <img :src="channel.imgUrl" alt="">  
               </div>
             </div>
-            <p class="listChannel-itemName">IronCat</p>
+            <p class="listChannel-itemName">{{channel.name}}</p>
             <p class="listChannel-itemStatus"></p>
             <div class="listChannel-itemBody">
               <div>
@@ -44,79 +45,8 @@
                 </ul>
               </div>
             </div>
-          </a>
+          </router-link>
         </li>
-        <!-- test div -->
-        <li class="listChannel-item col-sm-2">
-          <a href="">
-            <div class="listChannel-itemHeader">
-              <div class="listChannel-itemImg">
-                <img src="https://i.imgur.com/2sMHm0x.jpg" alt="channelImg">  
-              </div>
-            </div>
-            <p class="listChannel-itemName">IronCat</p>
-            <p class="listChannel-itemStatus"></p>
-            <div class="listChannel-itemBody">
-              <div>
-                <ul>
-                  <li>123</li>
-                </ul>
-              </div>
-            </div>
-          </a>
-        </li>        <li class="listChannel-item col-sm-2">
-          <a href="">
-            <div class="listChannel-itemHeader">
-              <div class="listChannel-itemImg">
-                <img src="https://i.imgur.com/2sMHm0x.jpg" alt="channelImg">  
-              </div>
-            </div>
-            <p class="listChannel-itemName">IronCat</p>
-            <p class="listChannel-itemStatus"></p>
-            <div class="listChannel-itemBody">
-              <div>
-                <ul>
-                  <li>123</li>
-                </ul>
-              </div>
-            </div>
-          </a>
-        </li>        <li class="listChannel-item col-sm-2">
-          <a href="">
-            <div class="listChannel-itemHeader">
-              <div class="listChannel-itemImg">
-                <img src="https://i.imgur.com/2sMHm0x.jpg" alt="channelImg">  
-              </div>
-            </div>
-            <p class="listChannel-itemName">IronCat</p>
-            <p class="listChannel-itemStatus"></p>
-            <div class="listChannel-itemBody">
-              <div>
-                <ul>
-                  <li>123</li>
-                </ul>
-              </div>
-            </div>
-          </a>
-        </li>        <li class="listChannel-item col-sm-2">
-          <a href="">
-            <div class="listChannel-itemHeader">
-              <div class="listChannel-itemImg">
-                <img src="https://i.imgur.com/2sMHm0x.jpg" alt="channelImg">  
-              </div>
-            </div>
-            <p class="listChannel-itemName">IronCat</p>
-            <p class="listChannel-itemStatus"></p>
-            <div class="listChannel-itemBody">
-              <div>
-                <ul>
-                  <li>123</li>
-                </ul>
-              </div>
-            </div>
-          </a>
-        </li>        
-        <!-- test div -->
       </ul>
     </div>
     <!-- Create new channel -->
@@ -140,8 +70,8 @@
             </form>
             <form action="">
               <div class="form-group">
-                <label for="InputAccessToken">Access Token</label>
-                <input v-model="NCNData.AccToken" type="text" class="form-control" id="InputAccessToken" placeholder="Enter line channel access token">
+                <label for="InputAccessToken">Webhooks Url</label>
+                <input v-model="NCNData.webhooks" type="text" class="form-control" id="InputWebhooks" placeholder="Enter Webhooks Url">
               </div>
             </form>
             <form class="cnc-innerBodyFooter" action="">
@@ -161,22 +91,17 @@
             </form>
             <div class="modal-footer">
               <button @click="closeWrapper" type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-              <button type="button" class="btn btn-primary">Enter</button>
+              <button @click="sendNewChannel" type="button" class="cnc-enterButton btn btn-primary">Enter</button>
             </div>                    
           </div>        
       </div>
     </div>
-    <!-- <img alt="Vue logo" src="../assets/logo.png"> -->
-    <div>Your Email: {{this.$store.state.mainAccount}}</div>
-    <div>Your UID: {{this.$store.state.mainUid}}</div>
-    <!-- <HelloWorld msg="Welcome to Your Channel"/> -->
   </div>
 </template>
 
 <script>
 // @ is an alias to /src
 import firebase from 'firebase';
-let storageRef = firebase.storage().ref('/ChannelImages/');
 
 export default {
   name: 'home',
@@ -186,29 +111,53 @@ export default {
         this.userData.uid = user.uid;
         this.userData.email = user.email;
         this.userData.photoURL = user.photoURL;
-        console.log(this.userData);
+
+        let msgRef = firebase.database().ref(`/${user.uid}/`);
+          msgRef.once('value', (snapshot) => {
+          let val = snapshot.val();
+          
+          for(let i in val) {
+            this.channelData.push({
+              name: val[i].channelName,
+              webhooks: val[i].webhooks,
+              imgUrl: val[i].imgUrl
+            })
+          }
+          this.searchDataList = this.channelData; // 將資料統一
+          }) 
       } else {
         console.log('no sign in')
         this.$router.push({ name: 'Login', params: { userId: 'channel'}});
       }
-    });
+    });  
   },
   data() {
     return {
-      userData: {
+      userData: {     // 使用者的資料
         uid: '',
         email: '',
         photoURL: ''
       },
-      NCNData: {
+      channelData: [], // 畫面呈現依據資料 , 新增修改後改動的資料  ( key:[name, accToken, imgUrl] )
+      searchInput: '', // 搜尋欄位的 input
+      searchDataList: [],  // 搜尋後的資料結果 綁定畫面 ( key:[name, accToken, imgUrl] )
+      NCNData: {       // 新增頻道的資料 
         name: '',
-        AccToken: '',
+        webhooks: '',
         appIconUrl: ''
       },
-      createNewChannel: false
+      imgFile: {},     // 新增頻道的圖片資料 (file) 
+      createNewChannel: false  // 新增畫面 => true: open : false: close
     }
   },
   methods: {
+    siginOut: function() {
+      firebase.auth().signOut().then(function() {
+        console.log('Signed Out');
+      }, function(error) {
+        console.error('Sign Out Error', error);
+      });
+    },
     createNew: function() {
       console.log('true')
       this.createNewChannel = true;
@@ -217,20 +166,91 @@ export default {
       this.createNewChannel = false;
       this.NCNData = {
         name: '',
-        AccToken: '',
+        webhooks: '',
         appIconUrl: ''
-      }
+      },
+      this.imgFile = {};
     },
-    uploadImage: function(img) {
-      console.log(img);
+    uploadImage: function(e) {
+      this.imgFile = e.target.files[0];
+      console.log(this.imgFile);
+
       var reader = new FileReader();
-        reader.onload = (e) => {
-          this.NCNData.appIconUrl = e.target.result;
+        reader.onload = (img) => {
+          this.NCNData.appIconUrl = img.target.result;
       };
-      reader.readAsDataURL(img.target.files[0]); 
+      reader.readAsDataURL(e.target.files[0]); 
     },
     sendNewChannel: function() {
-      console.log('senNewChannel');
+      if(this.NCNData.name != '' && this.userData.AccToken != '' && this.imgFile.lastModified){
+        let fileName = `${this.NCNData.name}_${this.imgFile.name}`;
+        let metadata = {
+          contentType: 'image/*'
+        };
+        let storageRef = firebase.storage().ref(this.userData.uid);
+        let uploadTask = storageRef.child(fileName).put(this.imgFile, metadata);
+        
+        // 
+        uploadTask.on(firebase.storage.TaskEvent.STATE_CHANGED, (snapshot) => {
+           let progress = Math.floor((snapshot.bytesTransferred / snapshot.totalBytes) * 100);
+            if(progress >= 100) {
+              console.log('img upload success');
+              uploadTask.snapshot.ref.getDownloadURL().then((downloadURL) => {
+                let msgRef = firebase.database().ref().child(`${this.userData.uid}`);
+                  msgRef.child(`${this.NCNData.name}`).set({
+                    channelName: this.NCNData.name,
+                    webhooks: this.NCNData.webhooks,
+                    imgUrl: downloadURL
+                  });
+
+                  // 在畫面上新增 
+                  this.channelData.push({
+                    name: this.NCNData.name,
+                    webhooksUrl: this.NCNData.webhooks,
+                    imgUrl: downloadURL
+                  });
+                // close Wrapper
+                this.closeWrapper();
+              });
+            }
+          },
+          function(error) {
+            switch (error.code) {
+              case 'storage/unauthorized':
+                console.log("User doesn't have permission to access the object");
+              break;
+
+              case 'storage/canceled':
+                console("User canceled the upload");
+              break;
+
+              case 'storage/unknown':
+                console("Unknown error occurred, inspect error.serverResponse");
+              break;
+            }
+          });
+        console.log('senNewChannel');
+      }else{     
+        console.log('CNC error');
+      }
+    },
+    searchData: function() {
+      let input = this.searchInput.trim().toLowerCase();
+      console.log(`search Input = ${input}`);
+      if(input === '') {
+        return this.channelData;
+      }else {
+        this.searchDataList = this.channelData.filter((item) => {
+          return item.name.toLowerCase().indexOf(input) != -1
+        });
+      }
+    }
+  },
+  watch: {
+    searchInput: function(input) {
+      if(!input) {
+        this.searchDataList = this.channelData;
+      }
     }
   }
 }
@@ -275,6 +295,10 @@ ul {
 
 .bar_sm_button i {
   font-size: 1rem;
+}
+
+.signOutButton {
+  margin-left: .5rem;
 }
 
 .containerInner {
