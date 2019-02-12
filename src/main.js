@@ -13,6 +13,7 @@ Vue.config.productionTip = false
 
 const config = {
     apiKey: "AIzaSyCNpteFz_n_YmH7v4l6-1MY91DE9yJPC0M",
+    //authDomain: "yangmak.github.io",
     authDomain: "linebot-ironcat.firebaseapp.com",
     databaseURL: "https://linebot-ironcat.firebaseio.com",
     projectId: "linebot-ironcat",
