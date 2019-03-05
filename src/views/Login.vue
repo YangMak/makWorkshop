@@ -104,6 +104,7 @@ input {
   background-color: rgba(255, 255, 255, 0.7);
   max-width: 576px;
   border-radius: 17px;
+  box-shadow: 0 2px 32px 0 rgba(255,255,255,.5);
 }
 
 .login_mainIcon i {

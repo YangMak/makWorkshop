@@ -29,7 +29,7 @@
           </div>
         </li>        
         <!-- order channel item -->
-        <li v-for="channel in searchDataList" :key="channel.name" class="listChannel-item col-sm-2">
+        <li v-for="(channel, index) in searchDataList" :key="channel.name" class="listChannel-item col-sm-2">
           <router-link :to="{ name: 'Message', params: { name: channel.name, token: channel.accToken, imgUrl: channel.imgUrl }, query: {name: channel.name}}">
             <div class="listChannel-itemHeader">
               <div class="listChannel-itemImg">
@@ -38,14 +38,14 @@
             </div>
             <p class="listChannel-itemName">{{channel.name}}</p>
             <p class="listChannel-itemStatus"></p>
+            </router-link>
             <div class="listChannel-itemBody">
               <div>
                 <ul>
-                  <li>123</li>
+                  <li><button @click="deleteChannel(channel.name, index)" class="btn btn-light delete-btn">Delete</button></li>
                 </ul>
               </div>
             </div>
-          </router-link>
         </li>
       </ul>
     </div>
@@ -161,6 +161,12 @@ export default {
     createNew: function() {
       console.log('true')
       this.createNewChannel = true;
+    },
+    deleteChannel: function(cname, index) {
+      let msgRef = firebase.database().ref(`/${this.userData.uid}/`);
+      this.searchDataList.splice(index, 1);
+      console.log(`${cname} : ${index}`);
+      msgRef.child(cname).remove();
     },
     closeWrapper: function() {
       this.createNewChannel = false;
@@ -337,6 +343,15 @@ ul {
   border-radius: 25px 25px;
 }
 
+.delete-btn {
+  background-color: #F7F8F9;
+  color: #1b1e21;
+}
+
+.delete-btn:hover {
+  background-color: #F7F8F9;
+}
+
 .addButton {
   display: inline-block !important;
   text-align: center;
@@ -391,7 +406,7 @@ ul {
   margin: 0;
   padding: 0;
   width: 100%;
-  height:100%;
+  /* height:100%; */
   display: flex;
   flex-direction: column;
 }
@@ -457,12 +472,19 @@ ul {
 
 .listChannel-item:hover:hover .listChannel-itemBody {
   background-color: #16C464;
-  transition: all 0.25 ease-out;
+  transition: all 0.25s ease-out;
   border-radius: 0 0 25px 25px;
 }
 
 .listChannel-item:hover:hover .listChannel-itemBody div {
   color: #FFF;
+}
+
+.listChannel-item:hover:hover .listChannel-itemBody button {
+  color: #16C464;
+  box-shadow: 0 6px 17px 0 rgba(0, 0, 0, .1);
+  transition: all 0.25s ease-out;
+  border-radius: .2rem
 }
 
 .createNewChannel {
